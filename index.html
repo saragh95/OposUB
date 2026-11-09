@@ -293,7 +293,7 @@
     }
 
     // VARIABLES DE LA APLICACIÓN
-    let D = {};
+    let datos = {};
     let cid = "";
     let cmid = 1;
     let currentScript = null;
@@ -344,12 +344,12 @@
         }
 
         // Limpiar los datos anteriores
-        D = {};
-        window.D = undefined;
+        datos = {};
+        try { delete window.D; } catch (e) { window.D = undefined; }
 
         // Crear y cargar el script del módulo
         const script = document.createElement('script');
-        script.src = modulo.archivo;
+        script.src = modulo.archivo + '?v=' + Date.now(); // evita la caché
 
         currentScript = script;
 
@@ -358,16 +358,20 @@
 
             $('loading').style.display = 'none';
 
-            // Comprobar que el archivo ha definido los datos
-            if (!window.D || typeof window.D !== 'object') {
+            // Acepta tanto window.D = {...} como const/let/var D = {...}
+            let cargado = window.D;
+            if (!cargado && typeof D !== 'undefined') cargado = D;
+
+            if (!cargado || typeof cargado !== 'object') {
                 mostrarError(
                     'El archivo ' + modulo.archivo +
-                    ' se ha cargado, pero no contiene los datos esperados.'
+                    ' se ha cargado, pero no contiene los datos esperados.' +
+                    ' Abre la consola (F12) por si hay un error de sintaxis en el archivo.'
                 );
                 return;
             }
 
-            D = window.D;
+            datos = cargado;
 
             renderT();
         };
@@ -412,7 +416,7 @@
 
     // MOSTRAR LOS TESTS DEL MÓDULO CARGADO
     function renderT() {
-        let tests = Object.keys(D);
+        let tests = Object.keys(datos);
 
         if (tests.length === 0) {
             $('t').innerHTML = '<div class="msg">Este módulo todavía no tiene tests.</div>';
@@ -426,7 +430,7 @@
 
             return `
                 <div class="ti ${done ? 'd' : ''}" onclick="start('${t}')">
-                    <span class="tn">${D[t].n}</span>
+                    <span class="tn">${datos[t].n}</span>
                     <span class="ts">${getDateStr(done)}</span>
                 </div>
             `;
@@ -435,24 +439,26 @@
 
 
     // INICIAR UN TEST
+    const limpia = t => String(t).replace(/^\s*(\d+|[a-dA-D])\)\s*/, '');
+
     function start(id) {
         cid = id;
 
-        $('tt').innerText = D[id].n;
+        $('tt').innerText = datos[id].n;
 
         $('rp').style.display = 'none';
         $('sb').style.display = 'inline-block';
         $('rb').style.display = 'none';
 
-        $('qc').innerHTML = D[id].q.map((q, i) => `
+        $('qc').innerHTML = datos[id].q.map((q, i) => `
             <div class="qc" id="q${i}">
-                <div class="qt">${q[0]}</div>
+                <div class="qt">${i + 1}) ${limpia(q[0])}</div>
 
                 <div class="o">
                     ${q[1].map((o, j) => `
                         <label class="ol">
                             <input type="radio" name="q${i}" value="${j}">
-                            ${String.fromCharCode(97 + j)}) ${o}
+                            ${String.fromCharCode(97 + j)}) ${limpia(o)}
                         </label>
                     `).join('')}
                 </div>
@@ -465,7 +471,7 @@
 
     // CORREGIR EL TEST
     function corr() {
-        let qs = D[cid].q;
+        let qs = datos[cid].q;
         let c = 0;
 
         let hist = JSON.parse(localStorage.getItem('hist') || '{}');
