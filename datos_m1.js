@@ -1,4 +1,4 @@
-const D = {
+window.D = {
     "macro": { n: "Factores Macroeconómicos", q: [
             ["1) ¿Cuál es la principal diferencia entre el PIB real y el PIB nominal?", ["a) El PIB nominal se estima a precios constantes (precios de un año base).","b) El PIB real se estima a precios corrientes (precios del año en curso).","c) La diferencia entre el PIB nominal y el PIB real se conoce como inflactor del PIB.","d) Ninguna es correcta."], 3],
             ["2) El Producto Interior Bruto (PIB)…", ["a) Incluye el valor de las materias primas y productos o servicios intermedios utilizados.","b) No incluye el valor de los servicios prestados.","c) Se excluyen las transacciones de segunda mano.","d) Incluye aquellos productos producidos fuera de las fronteras de un país."], 2],
