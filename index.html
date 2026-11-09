@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tests Unicaja</title>
+    <style>
+        :root{--p:#0056b3;--ph:#004494;--bg:#f4f7f6;--t:#333;--cb:#d4edda;--cbo:#c3e6cb;--ct:#155724;--ib:#f8d7da;--ibo:#f5c6cb;--it:#721c24;--b:#ddd;--db:#e6f4ea;--dbo:#34a853}
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--t);margin:0;padding:15px;line-height:1.6}
+        .c{max-width:800px;margin:0 auto;background:#fff;padding:20px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,.05);min-height:80vh}
+        h1{text-align:center;font-size:1.5rem;color:var(--p);margin-bottom:20px}
+        h2{font-size:1.3rem;color:var(--p);margin-bottom:15px;text-align:center}
+        .v{display:none}.v.a{display:block}
+        .mg{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:15px}
+        .mc{background:#fff;border:2px solid var(--b);border-radius:10px;padding:20px 10px;text-align:center;cursor:pointer;transition:all .2s;font-weight:700;color:var(--p)}
+        .mc:hover{border-color:var(--p);background:#f0f7ff}
+        .mc.d{background:#f9f9f9;color:#aaa;border-color:#eee;cursor:not-allowed}
+        .tl{display:flex;flex-direction:column;gap:10px}
+        .ti{display:flex;justify-content:space-between;align-items:center;padding:15px;border:2px solid var(--b);border-radius:8px;cursor:pointer;transition:all .2s;background:#fff}
+        .ti:hover{border-color:var(--p)}
+        .ti.d{background:var(--db);border-color:var(--dbo)}
+        .tn{font-weight:600}
+        .ts{font-size:.85rem;color:#666;background:#eee;padding:4px 8px;border-radius:12px;white-space:nowrap}
+        .ti.d .ts{background:var(--dbo);color:#fff}
+        .bb{background:none;border:none;color:var(--p);font-size:1rem;cursor:pointer;padding:0;margin-bottom:15px;display:flex;align-items:center;gap:5px;font-weight:700}
+        .bb:hover{text-decoration:underline}
+        .qc{background:#fff;border:1px solid var(--b);border-radius:8px;padding:15px;margin-bottom:15px}
+        .qt{font-weight:600;margin-bottom:12px;font-size:1.05rem}
+        .o{display:flex;flex-direction:column;gap:8px}
+        .ol{display:flex;align-items:flex-start;padding:10px;border:1px solid var(--b);border-radius:6px;cursor:pointer;transition:background .2s}
+        .ol:hover{background:#f9f9f9}
+        .ol input[type=radio]{margin-top:5px;margin-right:10px;cursor:pointer}
+        .ch{background:var(--cb)!important;border-color:var(--cbo)!important;color:var(--ct)!important;font-weight:600}
+        .ic{background:var(--ib)!important;border-color:var(--ibo)!important;color:var(--it)!important;font-weight:600}
+        .bc{text-align:center;margin-top:20px;margin-bottom:20px}
+        .btn{background:var(--p);color:#fff;border:none;padding:12px 30px;font-size:1.1rem;border-radius:8px;cursor:pointer;width:100%;font-weight:700;transition:background .3s}
+        .btn:hover{background:var(--ph)}
+        .rp{display:none;background:#e2f0fb;border:2px solid #b6d4fe;color:#084298;padding:15px;border-radius:8px;text-align:center;font-size:1.2rem;font-weight:700;margin-bottom:20px}
+        @media(min-width:600px){.btn{width:auto}}
+    </style>
+</head>
+<body>
+    <div class="c">
+        <h1>Tests Unicaja</h1>
+        <div id="v0" class="v a"><h2>Selecciona un Módulo</h2><div class="mg" id="m"></div></div>
+        <div id="v1" class="v">
+            <button class="bb" onclick="go(0)">← Volver a Módulos</button>
+            <h2 id="mt">Módulo 1</h2><div class="tl" id="t"></div>
+        </div>
+        <div id="v2" class="v">
+            <button class="bb" onclick="go(1)">← Volver a la lista</button>
+            <h2 id="tt">Test</h2>
+            <div id="rp" class="rp"></div>
+            <div id="qc"></div>
+            <div class="bc">
+                <button class="btn" id="sb" onclick="corr()">Corregir Test</button>
+                <button class="btn" id="rb" onclick="start(cid)" style="display:none;background:#6c757d;margin-top:10px">Volver a intentar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cargamos el archivo con los datos de los tests -->
+    <script src="datos.js"></script>
+
+    <!-- Lógica de la aplicación -->
+    <script>
+        const M=[{i:1,n:"Módulo 1",t:Object.keys(D)}];
+        for(let i=2;i<=10;i++)M.push({i:i,n:"Módulo "+i,t:[]});
+
+        let cid="", cmid=1;
+        const $=id=>document.getElementById(id);
+        
+        function go(v){
+            document.querySelectorAll('.v').forEach(e=>e.classList.remove('a'));
+            $('v'+v).classList.add('a');
+            if(v===0) renderM();
+            if(v===1) renderT();
+        }
+        
+        function renderM(){
+            $('m').innerHTML=M.map(m=>`<div class="mc ${m.t.length?'':'d'}" ${m.t.length?`onclick="cmid=${m.i};go(1)"`:''}>${m.n}</div>`).join('');
+        }
+        
+        function getDateStr(ts){
+            if(!ts)return "No hecho";
+            let d=new Date(ts), n=new Date();
+            let diff=Math.floor((n-d)/(1000*60*60*24));
+            if(diff===0)return "Hecho hoy";
+            if(diff===1)return "Hecho ayer";
+            return `Hace ${diff} días`;
+        }
+        
+        function renderT(){
+            let m=M.find(x=>x.i===cmid);
+            $('mt').innerText=m.n;
+            let hist=JSON.parse(localStorage.getItem('hist')||'{}');
+            $('t').innerHTML=m.t.map(t=>{
+                let done=hist[t];
+                return `<div class="ti ${done?'d':''}" onclick="start('${t}')"><span class="tn">${D[t].n}</span><span class="ts">${getDateStr(done)}</span></div>`;
+            }).join('');
+        }
+        
+        function start(id){
+            cid=id;
+            $('tt').innerText=D[id].n;
+            $('rp').style.display='none';
+            $('sb').style.display='inline-block';
+            $('rb').style.display='none';
+            $('qc').innerHTML=D[id].q.map((q,i)=>`
+                <div class="qc" id="q${i}">
+                    <div class="qt">${q[0]}</div>
+                    <div class="o">
+                        ${q[1].map((o,j)=>`<label class="ol"><input type="radio" name="q${i}" value="${j}"> ${String.fromCharCode(97+j)}) ${o}</label>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+            go(2);
+        }
+        
+        function corr(){
+            let qs=D[cid].q, c=0;
+            let hist=JSON.parse(localStorage.getItem('hist')||'{}');
+            hist[cid]=Date.now();
+            localStorage.setItem('hist',JSON.stringify(hist));
+            
+            qs.forEach((q,i)=>{
+                let sel=document.querySelector(`input[name="q${i}"]:checked`);
+                let qDiv=$('q'+i);
+                qDiv.querySelectorAll('.ol').forEach(l=>l.classList.remove('ch','ic'));
+                if(sel){
+                    let v=parseInt(sel.value);
+                    if(v===q[2]){c++;sel.closest('.ol').classList.add('ch');}
+                    else{sel.closest('.ol').classList.add('ic');qDiv.querySelector(`input[value="${q[2]}"]`).closest('.ol').classList.add('ch');}
+                } else {
+                    qDiv.querySelector(`input[value="${q[2]}"]`).closest('.ol').classList.add('ch');
+                }
+            });
+            $('rp').style.display='block';
+            $('rp').innerText=`Has acertado ${c} de ${qs.length} preguntas.`;
+            $('sb').style.display='none';
+            $('rb').style.display='inline-block';
+            window.scrollTo(0,0);
+        }
+        renderM();
+    </script>
+</body>
+</html>
